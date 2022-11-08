@@ -1,26 +1,7 @@
-//Validaciones
+
 function isValidEmail(email) {
     let re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
-}
-
-
-
-let emailInput = document.getElementById("Email Address")
-let word = "";
-emailInput.addEventListener('input', (e) => {
-    word += e.data
-    console.log(word)
-
-})
-
-let valueEmail = word;
-
-if (isValidEmail(valueEmail)) {
-alert('Correo Válido')
-}
-else {
-alert('Parece que esto no es un correo electrónico');
 }
 
 const createText = (_text) => {
@@ -34,43 +15,50 @@ let thisForm = document.querySelector("#thisForm")
 
 thisForm.addEventListener("submit", (e) => {
 
-    let _res = localStorage.getItem("answers") // undefined // nullables  --> cuando por ejemplo el localstorage esta vacío
-
-    let answers;
-
-    if (_res == undefined) {
-        answers = []
-    } else {
-        answers = JSON.parse(_res)
+    let emailInput = document.getElementById("Email Address");
+    if (!isValidEmail(emailInput.value)) {
+        alert('Parece lo que has escrito en el campo "Email Address" no es un correo electrónico.\
+        \n\n*Una dirección de correo electrónico correcta debe tener esta estructura: name@host.tld.');
+        emailInput.value = "";
+        e.preventDefault();
+        
     }
+    else {
+        let _res = localStorage.getItem("answers") 
 
-    // let respuestas = !undefined ? [] : JSON.parse(_res) // ternary operator
+        let answers;
 
-    e.preventDefault()
+        if (_res == undefined) {
+            answers = []
+        } else {
+            answers = JSON.parse(_res)
+        }
+        e.preventDefault()
 
-    let newAnswer = {
-        name: e.target.name.value,
-        lastName: e.target.lastName.value,
-        emailAddress: e.target.emailAddress.value,
-        password: e.target.password.value
+        let newAnswer = {
+            name: e.target.name.value,
+            lastName: e.target.lastName.value,
+            emailAddress: e.target.emailAddress.value,
+            password: e.target.password.value
+        }
+
+        answers.push(newAnswer)
+
+        let answersJSON = JSON.stringify(answers)
+
+        localStorage.setItem("answers", answersJSON)
+
+        thisForm.reset()
+        let main = document.querySelector("main")
+        main.classList.toggle("hidden")
+        showAnswers(newAnswer.name, newAnswer.lastName, newAnswer.emailAddress, newAnswer.password);
+
     }
-
-    answers.push(newAnswer)
-
-    let answersJSON = JSON.stringify(answers)
-
-    localStorage.setItem("answers", answersJSON)
-
-    //limpiar
-    thisForm.reset()
-    let main = document.querySelector("main")
-    main.classList.toggle("hidden")
-    showAnswers(newAnswer.name, newAnswer.lastName, newAnswer.emailAddress, newAnswer.password);
 })
 
-
-
 function showAnswers(name, lastName, emailAddress, password) {
+
+    
 
     let answersJson = localStorage.getItem("answers")
     let answers = JSON.parse(answersJson)
@@ -97,22 +85,26 @@ function showAnswers(name, lastName, emailAddress, password) {
         div.appendChild(emailAddress)
         div.appendChild(password)
         div.appendChild(document.createElement("br"))
-        // let body = document.querySelector("body")
         divs.appendChild(div)
 
     })
+
+    let title = document.createElement("h1")
+    title.setAttribute("class", "title")
+    title.innerText = "Lista de respuestas"
+    body.appendChild(title)
 
     let returnButton = document.createElement("button")
     returnButton.setAttribute("id", "return")
     let textReturnButton = document.createTextNode("Volver al formulario")
     returnButton.appendChild(textReturnButton)
-    // let body = document.querySelector("body")
     body.appendChild(returnButton)
 
     returnButton.addEventListener("click", () => {
         let main = document.querySelector("main")
         divs.classList.toggle("hidden")
         main.classList.toggle("hidden")
+        title.classList.toggle("hidden")
         returnButton.classList.toggle("hidden")
     })
 
